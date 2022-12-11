@@ -5,14 +5,17 @@ import { SessionProvider } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 
 import "../styles/globals.css";
+import { AnimateSharedLayout } from "framer-motion";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session} refetchInterval={60}>
-      <Component {...pageProps} />
+    <SessionProvider session={session}>
+      <AnimateSharedLayout>
+        <Component {...pageProps} />
+      </AnimateSharedLayout>
     </SessionProvider>
   );
 };

@@ -14,11 +14,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Message {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  message    String   @default("")
+  sender     User     @relation(name: "sender", fields: [senderId], references: [id])
+  receiver   User     @relation(name: "receiver", fields: [receiverId], references: [id])
+  senderId   String
+  receiverId String
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  chatId     String
+}
+
+model Chat {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  members   User[]
+  messages  Message[]
+}
+
 model Category {
   id        String    @id @default(cuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   name      String
+  imageUrl  String?
   ownerId   String
   owner     User      @relation(fields: [ownerId], references: [id])
   expense   Expense[]
@@ -28,6 +50,8 @@ model Expense {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  title      String   @default("")
+  amount     Int      @default(0)
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
   ownerId    String
@@ -62,15 +86,20 @@ model Session {
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String?    @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  categories    Category[]
-  expense       Expense[]
+  id               String     @id @default(cuid())
+  name             String?
+  email            String?    @unique
+  emailVerified    DateTime?
+  image            String?
+  balance          Int        @default(0)
+  accounts         Account[]
+  sessions         Session[]
+  categories       Category[]
+  expense          Expense[]
+  Chat             Chat?      @relation(fields: [chatId], references: [id])
+  chatId           String?
+  messagesSent     Message[]  @relation(name: "sender")
+  messagesReceived Message[]  @relation(name: "receiver")
 }
 
 model VerificationToken {
